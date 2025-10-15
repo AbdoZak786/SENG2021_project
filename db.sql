@@ -1,0 +1,42 @@
+CREATE DOMAIN posint AS INTEGER
+CHECK (VALUE > 0);
+
+CREATE TABLE USERS (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password text NOT NULL
+);
+
+CREATE TABLE SELLERS (
+  id SERIAL,
+  abn VARCHAR(11) NOT NULL CHECK (abn ~ '^[0-9]{11}$'),
+  user_id INTEGER NOT NULL REFERENCES USERS(id) ON DELETE CASCADE,
+  name VARCHAR(50) NOT NULL,
+  address VARCHAR(100) NOT NULL,
+  primary key (id)
+);
+
+CREATE TABLE CUSTOMERS (
+  id SERIAL,
+  user_id INTEGER NOT NULL REFERENCES USERS(id) ON DELETE CASCADE,
+  abn VARCHAR(11) CHECK (abn ~ '^[0-9]{11}$'),
+  name VARCHAR(50) NOT NULL,
+  address VARCHAR(100) NOT NULL,
+  primary key (id)
+);
+
+CREATE TABLE INVOICES (
+  id SERIAL,
+  seller_id integer NOT NULL REFERENCES SELLERS(id) ON DELETE CASCADE,
+  customer_id integer NOT NULL REFERENCES CUSTOMERS(id) ON DELETE CASCADE,
+  primary key (id)
+);
+
+CREATE TABLE PRODUCTS (
+  id posint NOT NULL,
+  invoice_id INTEGER REFERENCES INVOICES(id) ON DELETE CASCADE,
+  description VARCHAR(200) NOT NULL,
+  rate INTEGER NOT NULL,
+  quantity INTEGER NOT NULL,
+  primary key(invoice_id, id)
+);

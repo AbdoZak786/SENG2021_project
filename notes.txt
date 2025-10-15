@@ -1,0 +1,11 @@
+SellerDetails
+id    name    address     abn
+
+CustomerDetails
+id    name    address     abn?
+
+Product
+invoice_id product_id    description   qty         rate
+
+invoiceDetails
+invoice_id    SellerDetails   CustomerDetails

@@ -1,0 +1,1012 @@
+openapi: 3.0.3
+info:
+  version: "1.0"
+  title: Error404 Invoice API
+  description: |-
+    description
+externalDocs:
+  description: Go to project confluence page
+  url: https://unswcse.atlassian.net/wiki/spaces/Error404No/pages/924549135/Project+Home
+tags:
+  - name: sellers
+    description: Operations about sellers
+  - name: customers
+    description: Operations about customers
+  - name: products
+    description: Operations about products
+  - name: invoices
+    description: Operations about invoices
+  - name: users
+    description: Operations about users
+paths:
+  /sellers:
+    get:
+      tags:
+        - sellers
+      summary: Retreives JSON of seller
+      description: Retrieves the JSON string of an already created seller via the abn
+      parameters:
+      - name: abn
+        in: query
+        required: true
+        schema:
+          type: number
+        description: Australian Business Number (ABN) of the seller
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: Name of the company
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  addres:
+                    type: string
+                  adn:
+                    type: number
+              
+        '404':
+          description: Seller not found in database
+        '500':
+          description: Internal Server Error
+  /sellers/create:
+    post:
+      tags:
+        - sellers
+      summary: Creates a seller
+      description: Creates a validated JSON string of a seller with the necessary details
+      requestBody:
+        description: Create a new pet in the store
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              - address
+              - abn
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                abn:
+                  type: number
+        required: true
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - name
+                - address
+                - abn
+                properties:
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  abn:
+                    type: number         
+        '404':
+          description: Seller not found
+        '400':
+          description: field is invalid (could be no name or invalid abn or invalid address)
+        '500':
+          description: Internal Server Error
+  /sellers/edit/{abn}:
+    patch:
+      tags:
+        - sellers
+      summary: Edits a saved sellers details
+      description: Edits a saved sellers details
+      parameters:
+        - name: abn
+          in: path
+          description: Australian Business Number (ABN) of the seller
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - address
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - companyName
+                - address
+                - abn
+                properties:
+                  companyName:
+                    type: string
+                  address:
+                    type: string
+                  abn:
+                    type: number   
+        '404':
+          description: Seller not found
+        '400':
+          description: Missing, name, address, or abn field
+        '500':
+          description: Internal Server Error
+  /sellers/delete/{abn}:
+    delete:
+      tags:
+        - sellers
+      summary: Deletes a saved seller
+      description: Deletes a seller identified by their ABN.
+      parameters:
+        - name: abn
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ABN of the seller to be deleted.
+      responses:
+        200:
+          description: Seller deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Seller deleted successfully"
+        404:
+          description: Seller with ABN does not exist
+        500:
+          description: Internal server error
+  /customers/create:
+    post:
+      tags:
+      - customers
+      summary: Creates a validated JSON string of a customer with the necessary details
+      description: Creates a customer with the given details and returns a validated JSON string.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - address
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                abn:
+                  type: number
+                  nullable: true
+      responses:
+        "201":
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer_id:
+                    type: number
+                  companyName:
+                    type: string
+                  address:
+                    type: string
+                  abn:
+                    type: number
+        "400":
+          description: Bad request - Invalid input fields
+        "409":
+          description: Conflict - Customer with (name, address, abn) tuple already exists
+        "500":
+          description: Internal server error
+  /customers/delete/{customer_id}:
+    delete:
+      tags:
+      - customers
+      summary: Deletes a saved customer
+      description: Deletes a customer based on the provided customer ID.
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Customer deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Customer deleted successfully"
+        "404":
+          description: Not Found - Customer with the given ID does not exist
+        "500":
+          description: Internal Server Error
+  /customers/edit/{customer_id}:
+    patch:
+      tags:
+      - customers
+      summary: Edits a saved customer's details
+      description: Updates the details of an existing customer in the database.
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - address
+                - abn
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                abn:
+                  type: number
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - companyName
+                - address
+                - abn
+                properties:
+                  companyName:
+                    type: string
+                  address:
+                    type: string
+                  abn:
+                    type: number   
+        "404":
+          description: Not Found - Customer does not exist in the database
+        "500":
+          description: Internal Server Error 
+  /customers:
+    get:
+      tags:
+      - customers
+      summary: Retrieves the JSON string of an already created customer
+      description: Fetches a customer using either the ABN or the (name, address, abn) tuple.
+      parameters:
+        - name: abn
+          in: query
+          schema:
+            type: number
+          description: ABN of the customer (optional if querying by name and address).
+        - name: companyName
+          in: query
+          schema:
+            type: string
+          description: Name of the customer (required if ABN is not provided).
+        - name: address
+          in: query
+          schema:
+            type: string
+          description: Address of the customer (required if ABN is not provided).
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - companyName
+                - address
+                - abn
+                properties:
+                  customer_id:
+                    type: number
+                  companyName:
+                    type: string
+                  address:
+                    type: string
+                  abn:
+                    type: number
+        "404":
+          description: Not Found - Customer does not exist in the database
+        "500":
+          description: Internal Server Error
+  /products/create:
+    post:
+      tags:
+      - products
+      summary: Creates a validated JSON string of a product
+      description: Creates a validated JSON string of a product with the necessary details including invoice_id, description, quantity, and rate.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoice_id:
+                  type: integer
+                  description: Unique identifier for the invoice
+                description:
+                  type: string
+                  description: Description of the product
+                quantity:
+                  type: integer
+                  description: Quantity of the product
+                rate:
+                  type: number
+                  format: float
+                  description: Rate of the product
+              required:
+                - invoice_id
+                - description
+                - quantity
+                - rate
+      responses:
+        '201':
+          description: Product successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - invoice_id
+                - product_id
+                - description
+                - quantity
+                - rate
+                properties:
+                  invoice_id:
+                    type: number
+                  product_id:
+                    type: number
+                  description:
+                    type: string
+                  quantity:
+                    type: number
+                  rate:
+                    type: number
+        '400':
+          description: Bad request due to invalid input
+        '500':
+          description: Internal server error while creating the product
+  /products/edit/{invoice_id}/{product_id}:
+    patch:
+      tags:
+      - products
+      summary: Edits an existing product
+      description: |
+        Edits an existing product using the provided `invoice_id` and `product_id`. The product details can be modified, and a JSON object representing the updated product will be returned.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice
+          schema:
+            type: integer
+        - name: product_id
+          in: path
+          required: true
+          description: Unique identifier for the product
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+                - rate
+                - quantity
+              properties:
+                description:
+                  type: string
+                rate:
+                  type: number
+                quanity:
+                  type: number
+      responses:
+        '200':
+          description: Product successfully edited
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - invoice_id
+                - product_id
+                - description
+                - quantity
+                - rate
+                properties:
+                  invoice_id:
+                    type: number
+                  product_id:
+                    type: number
+                  description:
+                    type: string
+                  quantity:
+                    type: number
+                  rate:
+                    type: number
+        '400':
+          description: Bad request due to invalid input (invalid invoice_id or invalid product_id)
+        '404':
+          description: Product not found in the database
+        '500':
+          description: Internal server error while editing the product
+  /products/delete/{invoice_id}/{product_id}:
+    delete:
+      tags:
+      - products
+      summary: Deletes a saved product
+      description: |
+        Deletes a saved product using the provided `invoice_id` and `product_id`. Returns a success message if the deletion is successful.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice
+          schema:
+            type: integer
+        - name: product_id
+          in: path
+          required: true
+          description: Unique identifier for the product
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Product successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Product successfully deleted'
+        '404':
+          description: Product with the given `invoice_id` or `product_id` does not exist
+        '500':
+          description: Internal server error while deleting the product          
+  /products/{invoice_id}:
+    get:
+      tags:
+      - products
+      summary: Retrieves the JSON string of all already created products via the invoice_id
+      description: |
+        Retrieves a JSON string of all products associated with the given `invoice_id`. Returns an array of products for the specified invoice.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Products successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - invoice_id
+                  - product_id
+                  - description
+                  - quantity
+                  - rate
+                properties:
+                  invoice_id:
+                    type: number
+                  product_id:
+                    type: number
+                  description:
+                    type: string
+                  quantity:
+                    type: number
+                  rate:
+                    type: number
+        '404':
+          description: Products have not been created in the SQL database, cannot retrieve other info
+        '500':
+          description: Internal server error while getting the products         
+  /products/{invoice_id}/{product_id}:
+    get:
+      tags:
+      - products
+      summary: Retrieves the JSON string of an already created product via the invoice_id and product_id
+      description: |
+        Retrieves a JSON string of a specific product associated with the given `invoice_id` and `product_id`.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice
+          schema:
+            type: integer
+        - name: product_id
+          in: path
+          required: true
+          description: Unique identifier for the product
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Product successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - invoice_id
+                  - product_id
+                  - description
+                  - quantity
+                  - rate
+                properties:
+                  invoice_id:
+                    type: number
+                  product_id:
+                    type: number
+                  description:
+                    type: string
+                  quantity:
+                    type: number
+                  rate:
+                    type: number
+        '404':
+          description: Product has not been created in the SQL database, cannot retrieve other info
+        '500':
+          description: Internal server error while getting the product          
+  /invoices/create:
+    post:
+      tags:
+      - invoices
+      summary: Creates a validated JSON string representation of an invoice
+      description: |
+        Creates a validated JSON string representation of an invoice using the provided seller and customer information.
+        If the API calls for creating the seller or customer were not used, but the format is correct, they will be automatically added to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seller:
+                  type: object
+                  properties:
+                    companyName:
+                      type: string
+                    address:
+                      type: string
+                    abn:
+                      type: integer
+                  required:
+                    - companyName
+                    - address
+                    - abn
+                customer:
+                  type: object
+                  properties:
+                    customer_id:
+                      type: integer
+                    companyName:
+                      type: string
+                    address:
+                      type: string
+                    abn:
+                      type: integer
+                  required:
+                    - customer_id
+                    - companyName
+                    - address
+                    - abn
+      responses:
+        '201':
+          description: Invoice successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - invoice_id
+                  - sellerDetails
+                  - customerDetails
+                properties:
+                  invoice_id:
+                    type: number
+                  sellerDetails:
+                    type: object
+                    required:
+                      - companyName
+                      - address
+                      - abn
+                    properties:
+                      companyName:
+                        type: string
+                      address:
+                        type: string
+                      abn:
+                        type: number
+                  customerDetails:
+                    type: object
+                    required:
+                      - customer_id
+                      - companyName
+                      - address
+                      - abn
+                    properties:
+                      customer_id:
+                        type: number
+                      companyName:
+                        type: string
+                      address:
+                        type: string
+                      abn:
+                        type: number
+        '400':
+          description: Bad request due to invalid seller or customer format
+        '500':
+          description: Internal server error while creating the invoice
+  /invoices/edit/{invoice_id}:
+    patch:
+      tags:
+      - invoices
+      summary: Edits an existing invoice
+      description: |
+        Edits an existing invoice using the provided `invoice_id`, `seller`, and `customer` details. If the seller or customer is not created using the API but the format is correct, it will automatically be added to the database.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seller:
+                  type: object
+                  properties:
+                    companyName:
+                      type: string
+                    address:
+                      type: string
+                    abn:
+                      type: integer
+                  required:
+                    - companyName
+                    - address
+                    - abn
+                customer:
+                  type: object
+                  properties:
+                    customer_id:
+                      type: integer
+                    companyName:
+                      type: string
+                    address:
+                      type: string
+                    abn:
+                      type: integer
+                  required:
+                    - customer_id
+                    - companyName
+                    - address
+                    - abn
+      responses:
+        '200':
+          description: Invoice successfully edited
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - invoice_id
+                  - sellerDetails
+                  - customerDetails
+                properties:
+                  invoice_id:
+                    type: number
+                  sellerDetails:
+                    type: object
+                    required:
+                      - companyName
+                      - address
+                      - abn
+                    properties:
+                      companyName:
+                        type: string
+                      address:
+                        type: string
+                      abn:
+                        type: number
+                  customerDetails:
+                    type: object
+                    required:
+                      - customer_id
+                      - companyName
+                      - address
+                      - abn
+                    properties:
+                      customer_id:
+                        type: number
+                      companyName:
+                        type: string
+                      address:
+                        type: string
+                      abn:
+                        type: number
+        '400':
+          description: Bad request due to invalid seller or customer format
+        '404':
+          description: Invoice has not been created in the SQL database, cannot retrieve other info
+        '500':
+          description: Internal server error while editing the invoice
+  /invoices/delete/{invoice_id}:
+    delete:
+      tags:
+      - invoices
+      summary: Deletes a saved invoice
+      description: |
+        Deletes a saved invoice using the provided `invoice_id`. Returns a success message if the deletion is successful.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice to be deleted
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Invoice successfully deleted'
+        '404':
+          description: Invoice with the given `invoice_id` does not exist
+        '500':
+          description: Internal server error while deleting the invoice        
+  /invoices/{invoice_id}:
+    get:
+      tags:
+      - invoices
+      summary: Retrieves the JSON string of an already created invoice via the invoice_id
+      description: |
+        Retrieves a JSON string of a specific invoice associated with the given `invoice_id`.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - invoice_id
+                  - sellerDetails
+                  - customerDetails
+                properties:
+                  invoice_id:
+                    type: number
+                  sellerDetails:
+                    type: object
+                    required:
+                      - companyName
+                      - address
+                      - abn
+                    properties:
+                      companyName:
+                        type: string
+                      address:
+                        type: string
+                      abn:
+                        type: number
+                  customerDetails:
+                    type: object
+                    required:
+                      - customer_id
+                      - companyName
+                      - address
+                      - abn
+                    properties:
+                      customer_id:
+                        type: number
+                      companyName:
+                        type: string
+                      address:
+                        type: string
+                      abn:
+                        type: number
+        '404':
+          description: Invoice has not been created in the SQL database, cannot retrieve other info
+        '500':
+          description: Internal server error while getting the invoice
+  /invoices/{invoice_id}/generate:
+    get:
+      tags:
+      - invoices
+      summary: Creates a UBL formatted string of the invoice that has been created
+      description: |
+        Generates a UBL (Universal Business Language) formatted string for the invoice specified by the `invoice_id`.
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          description: Unique identifier for the invoice to generate the UBL string
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: UBL string successfully generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoiceUBLString:
+                    type: string
+        '400':
+          description: Bad request due to invalid invoice_id
+        '500':
+          description: Internal server error while generating the invoice UBL string
+  /users/register:
+    post:
+      tags:
+      - users
+      summary: Registers a new user
+      description: |
+        Registers a new user with the provided `email` and `password`. The user data will be saved in the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User successfully registered'
+        '400':
+          description: Bad request due to invalid email or password
+        '500':
+          description: Internal server error during user registration
+  /users/login:
+    post:
+      tags:
+      - users
+      summary: Logs in an existing user
+      description: |
+        Logs in an existing user with the provided `email` and `password`. If the credentials are valid, a session or token will be generated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User successfully logged in'
+                  token:
+                    type: string
+        '400':
+          description: Bad request due to invalid email or password
+        '500':
+          description: Internal server error during user login
+  /users/delete:
+    delete:
+      tags:
+      - users
+      summary: Deletes a user account
+      description: |
+        Deletes a user account using the provided `username` and `password`. The user will be removed from the database.
+      responses:
+        '200':
+          description: User successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User successfully deleted'
+        '400':
+          description: Bad request due to invalid username or password
+        '404':
+          description: User not found, cannot delete
+        '500':
+          description: Internal server error during user deletion
